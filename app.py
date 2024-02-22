@@ -17,7 +17,7 @@ app.add_middleware(
     allow_headers=["*"]  # 允许携带的 Headers
 )
 
-@app.get("/doiCheck")
+@app.get("/")
 def doiCheck(doi:str):
     return doiInfo(doi)
 
