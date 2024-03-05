@@ -104,7 +104,6 @@ unpaywallMap = {
     'JSTOR': 'jstor',
     'Microbiology Society': 'microbiologysociety',
     'Princeton University Press': 'degruyter',
-    'SAGE Publications': 'taylorfrancis',
     'American Concrete Institute': 'aci'
 }
 
@@ -134,7 +133,8 @@ pattern = {
     "liebert": "(Liebert)",
     "jstage": "(IEE Japan)",
     'aip': "(AIP Publishing|American Vacuum Society|Author\(s\)|AIP)",
-    'worldscientific': "(WORLD SCIENTIFIC)"
+    'worldscientific': "(WORLD SCIENTIFIC)",
+    "sage": "(sage)"
 }
 
 pattern = {k:re.compile(v, re.I) for k, v in pattern.items()}
