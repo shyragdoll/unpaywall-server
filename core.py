@@ -192,7 +192,7 @@ def FormatPublish(doi, journal, source_publisher):
             if matchd:
                 return k
             
-    return 'other'
+    return 'default'
 
 def search_by_unpaywall(doi):
     """
