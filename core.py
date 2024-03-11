@@ -105,7 +105,26 @@ unpaywallMap = {
     'JSTOR': 'jstor',
     'Microbiology Society': 'microbiologysociety',
     'Princeton University Press': 'degruyter',
-    'American Concrete Institute': 'aci'
+    'American Concrete Institute': 'aci',
+    "ARMA":"onepetro",
+    "Society for Sedimentary Geology":"geoscienceworld",
+    "MIS Quarterly":"misq",
+    "American Society of Consultant Pharmacists":"ingenta",
+    "Japan Petroleum Institute":"jstage",
+    "Trans Tech Publications Ltd":"scientific",
+    "American Society of Mechanical Engineers":"asme",
+    "Mark Allen Group":"magonline",
+    "MyJove Corporation":"jove",
+    "Water Environment Federation":"ingenta",
+    "Institution of Engineering and Technology":"iet",
+    "Society of Rheology":"aip",
+    "National Institute of Industrial Health":"jstage",
+    "American Institute of Aeronautics and Astronautics":"arc",
+    "ACM":"acm",
+    "Hindawi Limited":"hindawi",
+    "GeoScienceWorld":"geoscienceworld",
+    "Japan Society for Analytical Chemistry":"ingenta",
+    "International Society for Horticultural Science (ISHS)":"ishs",
 }
 
 pattern = {
@@ -135,7 +154,9 @@ pattern = {
     "jstage": "(IEE Japan)",
     'aip': "(AIP Publishing|American Vacuum Society|Author\(s\)|AIP)",
     'worldscientific': "(WORLD SCIENTIFIC)",
-    "sage": "(sage)"
+    "sage": "(sage)",
+    'cambridge': '(Cambridge)',
+    'karger': '(Karger)',
 }
 
 pattern = {k:re.compile(v, re.I) for k, v in pattern.items()}
