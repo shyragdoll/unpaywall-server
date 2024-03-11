@@ -1,5 +1,6 @@
 import re
 import httpx
+import difflib
 
 unpaywallMap = {
     'Wiley': 'wiley',
@@ -139,38 +140,55 @@ pattern = {
 
 pattern = {k:re.compile(v, re.I) for k, v in pattern.items()}
 
-def FormatPublish(x):
-    publisher = unpaywallMap.get(x)
+def _fetch(url):
+    for _ in range(2):
+        try:
+            resp = httpx.get(url, headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+            }, verify=False, timeout=15)
+            return resp.json()
+        except:
+            pass
+
+    return None
+
+def FormatPublish(doi, journal, source_publisher):
+    # doi 特殊处理
+    if '.cnki.' in doi:
+        return 'cnki'
+    
+    # journal 特殊处理
+    if "nature" in journal.lower():
+        return 'nature'
+
+    publisher = unpaywallMap.get(source_publisher)
 
     if publisher:
         return publisher
     else:
         for k,v in pattern.items():
-            matchd = v.search(x)
+            matchd = v.search(source_publisher)
             if matchd:
                 return k
+            
+    return 'other'
 
-    return "doi" if '10.' in x else "other"
-    
-def doiInfo(doi):
-    for _ in range(2):
-        try:
-            resp = httpx.get(f'https://api.unpaywall.org/v2/{doi}?email=info@booksci.cn', verify=False, follow_redirects=False, timeout=10)
-            data = resp.json()
-            break
-        except:
-            pass
-
-    journal = data.get("journal_name", "") or ""
-    source_publisher = data.get("publisher", "") or ""
-    publisher = "nature" if "nature" in journal.lower() else FormatPublish(source_publisher)
-    
-    best_oa = data.get("best_oa_location")
+def search_by_unpaywall(doi):
+    """
+    使用 unpaywall 查询文献
+    """
+    data = _fetch(f'https://api.unpaywall.org/v2/{doi}?email=info@booksci.cn')
 
     pdf = None
+    journal = data.get("journal_name", "") or ""
+    source_publisher = data.get("publisher", "") or ""
+
+    best_oa = data.get("best_oa_location")
     if isinstance(best_oa, dict):
         pdf = best_oa.get("url_for_pdf") or best_oa.get("url")
-
+    
+    publisher = FormatPublish(doi, journal, source_publisher)
+    
     return {
         "doi": data.get("doi"),
         "title": data.get("title"),
@@ -180,3 +198,36 @@ def doiInfo(doi):
         "is_oa": data.get("is_oa"),
         "pdf": pdf
     }
+
+
+def search_by_cnki(keyword):
+    """
+    使用 cnki 查询文献
+    """
+    publisher = "other"
+
+    url = f'https://bjpaper-cnki-paperserver-yixffbglrj.cn-beijing.fcapp.run/cnki/search?keyWord={keyword}&publishTimeType=1'
+    data = _fetch(url)
+
+    if data and len(data["results"]) >= 1:
+        title = data["results"][0]["title"]
+        # 相似度 > 0.8
+        if difflib.SequenceMatcher(None, keyword, title).quick_ratio() > 0.8:
+            publisher = 'cnki' 
+     
+    return {
+        "doi": "",
+        "title": keyword,
+        "journal_name": "",
+        "source_publisher": "",
+        "publisher": publisher,
+        "is_oa": False,
+        "pdf": None
+    }
+    
+def doiInfo(doi):
+    if re.search(r'[\u4e00-\u9fa5]', doi):
+        return search_by_cnki(doi)
+    else:
+        return search_by_unpaywall(doi)
+
