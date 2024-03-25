@@ -178,6 +178,9 @@ def FormatPublish(doi, journal, source_publisher):
     if '.cnki.' in doi:
         return 'cnki'
     
+    if '10.5004/dwt.' in doi:
+        return 'deswater'
+
     # journal 特殊处理
     if "nature" in journal.lower():
         return 'nature'
